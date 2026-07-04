@@ -127,7 +127,7 @@ export default function Navbar() {
       return;
     }
 
-    if (isLoading || profileExists === undefined) return;
+    if (IsCheckingProfile || profileExists === undefined) return;
 
     if (profileExists === false) {
       setShowSetupModal(true);
@@ -141,14 +141,14 @@ export default function Navbar() {
       //   });
       // }
     }
-  }, [address, isLoading, profileExists, isNewUser]);
+  }, [address, IsCheckingProfile, profileExists, isNewUser]);
 
 
   return (
     <>
       {/* Loading Modal */}
       <Modal
-        isOpen={!!address && isLoading}
+        isOpen={!!address && IsCheckingProfile}
         onClose={() => { }}
         showCloseButton={false}
         size="sm"
@@ -169,7 +169,7 @@ export default function Navbar() {
       />
 
       {/* Profile Setup Modal */}
-      {isLoading === false && (
+      {IsCheckingProfile === false && (
         <ProfileSetupModal
           isOpen={showSetupModal}
           onClose={() => setShowSetupModal(false)}
