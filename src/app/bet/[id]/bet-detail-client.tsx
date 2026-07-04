@@ -25,12 +25,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useAcceptMutualBet, useFetchConsensusBet, useFetchMutualBet, useJoinConsensusBet, useSettleConsensusBet, useSettleMutualBet, useUserProfile } from '@/lib/hooks/useTruthDuel';
 import { formatAddress } from '@/lib/genlayer/wallet';
-import { useWallets } from '@privy-io/react-auth';
+import { useWallet } from '@/hooks/useWallet';
+import { getAddress } from 'viem';
 
 export default function BetDetailClient({ id }: { id: string }) {
   const isMutual = id.startsWith("mutual_");
-  const { wallets } = useWallets();
-  const currentUserAddress = wallets[0]?.address || "";
+  const { address, isConnected, openModal: connect } = useWallet();
+  const currentUserAddress = address ? getAddress(address) : "";
   const isDisabled = true
   const { isPending: isSettlingMutualBet, mutate: settleMutualBet } = useSettleMutualBet(id)
   const { isPending: isSettlingConsensusBet, mutate: settleConsensusBet } = useSettleConsensusBet(id)

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, SlidersHorizontal, Layers } from 'lucide-react';
-// import { BetCategory } from '@/lib/types';
 import { useFetchConsensusBets, useFetchMutualBets } from '@/lib/hooks/useTruthDuel';
 
 

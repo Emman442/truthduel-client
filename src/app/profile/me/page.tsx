@@ -10,14 +10,13 @@ import { MOCK_USER, MOCK_ACTIVITIES } from '@/lib/mock-data';
 import { Wallet, Trophy, Target, TrendingUp, ShieldCheck, Mail, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/lib/hooks/useTruthDuel';
-import { useWallets } from '@privy-io/react-auth';
+import { useWallet } from '@/hooks/useWallet';
 import { HashLoader } from 'react-spinners';
 import { formatAddress } from '@/lib/genlayer/wallet';
 
 export default function ProfilePage() {
-  const { wallets } = useWallets();
-  const address = wallets[0]?.address || "";
 
+  const { address, isConnected, openModal: connect } = useWallet();
   const { isFetching: isUserProfileFetching, data: userProfile } = useUserProfile(address)
 
   if (isUserProfileFetching) {
@@ -33,8 +32,8 @@ export default function ProfilePage() {
   }
 
   const userProfileObj = userProfile
-  ? Object.fromEntries(userProfile)
-  : null;
+    ? Object.fromEntries(userProfile)
+    : null;
   console.log(userProfileObj)
 
   const user_accuracy = userProfileObj && userProfileObj.total_bets > 0 ? ((userProfileObj.total_won / userProfileObj.total_bets) * 100).toFixed(2) + "%" : "0%";
@@ -59,7 +58,7 @@ export default function ProfilePage() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h1 className="text-sm font-black italic tracking-tighter">@{userProfileObj?.username}</h1>
-                    <p className="text-sm text-muted-foreground font-mono">{ formatAddress(userProfileObj?.wallet_address) }</p>
+                    <p className="text-sm text-muted-foreground font-mono">{formatAddress(userProfileObj?.wallet_address)}</p>
                   </div>
                   <Badge variant="outline" className="border-primary/30 text-primary font-bold">Expert Predictor</Badge>
                 </div>
@@ -102,9 +101,9 @@ export default function ProfilePage() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {[
-                { label: 'Predictions Made', value: userProfileObj?.total_bets , icon: Target, color: 'text-blue-500' },
-                { label: 'Total Won', value: userProfileObj?.total_won , icon: Trophy, color: 'text-yellow-500' },
-                { label: 'Accuracy', value: user_accuracy , icon: TrendingUp, color: 'text-success' },
+                { label: 'Predictions Made', value: userProfileObj?.total_bets, icon: Target, color: 'text-blue-500' },
+                { label: 'Total Won', value: userProfileObj?.total_won, icon: Trophy, color: 'text-yellow-500' },
+                { label: 'Accuracy', value: user_accuracy, icon: TrendingUp, color: 'text-success' },
               ].map((stat, i) => (
                 <Card key={i} className="glass-card border-white/5">
                   <CardContent className="p-6">

@@ -6,13 +6,14 @@ import TruthDuel from "@/lib/contracts/TruthBets"
 import { getContractAddress } from "../genlayer/client";
 import type { UserProfile, MutualBet, ConsensusBet, SettlementResult } from "../contracts/types";
 import { toast } from "sonner";
-import { useWallets } from "@privy-io/react-auth";
+import {useWallet} from "@/hooks/useWallet";
 
 
 export function useVeriFreeContract(): TruthDuel | null {
-    const { wallets } = useWallets();
+
     const contractAddress = getContractAddress();
-    const address = wallets[0]?.address;
+    const { address, isConnected, openModal: connect } = useWallet();
+
 
     return useMemo(() => {
         if (!contractAddress || !address) {
@@ -385,7 +386,7 @@ export function useAcceptMutualBet(bet_id: string) {
 
         onSuccess: async (_, variables) => {
             await queryClient.invalidateQueries({
-                queryKey: ["accepted_mutual_bet"],  
+                queryKey: ["accepted_mutual_bet"],
             });
 
             await queryClient.invalidateQueries({

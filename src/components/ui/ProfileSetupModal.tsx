@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Modal from "@/components/ui/modal";
 import { useCreateProfile } from "../../lib/hooks/useTruthDuel";
 import { toast } from "sonner";
-import { useWallets } from "@privy-io/react-auth";
+// import { useWallets } from "@privy-io/react-auth";
 
 interface ProfileSetupModalProps {
     isOpen: boolean;
@@ -26,7 +26,6 @@ export default function ProfileSetupModal({
     const [username, setUsername] = useState("");
     const [isCreating, setIsCreating] = useState(false);
     const createProfileMutation = useCreateProfile();
-    const { wallets } = useWallets();
      const isUsernameValid = username.trim().length >= 5;
 
     const handleCreateProfile = async () => {

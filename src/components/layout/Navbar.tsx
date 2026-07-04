@@ -21,30 +21,27 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import LoginButton from './loginButton';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useWallet } from '@/hooks/useWallet';
 import Modal from '../ui/modal';
 import { HashLoader } from 'react-spinners';
 import { useCheckIfProfileExists } from '@/lib/hooks/useTruthDuel';
 import { toast } from 'sonner';
 import ProfileSetupModal from '../ui/ProfileSetupModal';
 import HowItWorksModal from '../ui/HowItWorks';
+import { ConnectWallet } from '../ui/ConnectWallet';
+import { getAddress } from 'viem';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
   const router = useRouter()
-  const { wallets } = useWallets();
-  const { logout } = usePrivy();
   const [hasChecked, setHasChecked] = useState(false);
   const [showSetupModal, setShowSetupModal] = useState(false);
-
-  const embeddedWallet = wallets[0];
-  const address = embeddedWallet?.address;
-
+  const { address: LowerCaseAddress } = useWallet()
+  const address = LowerCaseAddress ? getAddress(LowerCaseAddress) : "";
   const { isLoading, data: profileExists } = useCheckIfProfileExists(address);
-
+  console.log(profileExists, "profileExists")
   const navLinks = [
     { name: 'Explore', href: '/explore', icon: Compass },
     // { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
@@ -80,25 +77,27 @@ export default function Navbar() {
   );
 
   // Profile check logic
+  // Profile check logic
   useEffect(() => {
     if (!address) {
-      setHasChecked(false);
       setShowSetupModal(false);
       return;
     }
 
-    if (isLoading || hasChecked) return;
+    // Halt execution if the hook is still working
+    if (isLoading || profileExists === undefined) return;
 
-    setHasChecked(true);
-
-    if (!profileExists) {
+    // Explicitly check for exact boolean values
+    if (profileExists === false) {
       setShowSetupModal(true);
-    } else {
+    } else if (profileExists === true) {
+      setShowSetupModal(false);
       toast.success("Welcome back!", {
         description: `${address.slice(0, 6)}...${address.slice(-4)}`,
       });
     }
-  }, [address, isLoading, profileExists, hasChecked]);
+  }, [address, isLoading, profileExists]);
+
 
   return (
     <>
@@ -198,7 +197,8 @@ export default function Navbar() {
                 </Button>
               </>
             ) : (
-              <LoginButton />
+              // <LoginButton />
+              <ConnectWallet />
             )}
           </div>
         </div>
