@@ -183,7 +183,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   /**
    * Connect to MetaMask
    */
- const connectWallet = useCallback(async () => {
+  const connectWallet = useCallback(async () => {
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
 

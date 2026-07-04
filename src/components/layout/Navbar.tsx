@@ -9,7 +9,8 @@ import {
   PlusCircle,
   LayoutDashboard,
   Zap,           // Changed from Lightbulb
-  Menu
+  Menu,
+  User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,15 +22,15 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import { useWallet } from '@/hooks/useWallet';
+import { useWallet } from '@/lib/genlayer/wallet';
 import Modal from '../ui/modal';
 import { HashLoader } from 'react-spinners';
 import { useCheckIfProfileExists } from '@/lib/hooks/useTruthDuel';
 import { toast } from 'sonner';
 import ProfileSetupModal from '../ui/ProfileSetupModal';
 import HowItWorksModal from '../ui/HowItWorks';
-import { ConnectWallet } from '../ui/ConnectWallet';
 import { getAddress } from 'viem';
+import { success, error, userRejected } from "@/lib/utils/toast";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -38,17 +39,58 @@ export default function Navbar() {
   const router = useRouter()
   const [hasChecked, setHasChecked] = useState(false);
   const [showSetupModal, setShowSetupModal] = useState(false);
-  const { address: LowerCaseAddress } = useWallet()
-  const address = LowerCaseAddress ? getAddress(LowerCaseAddress) : "";
-  const { isLoading, data: profileExists } = useCheckIfProfileExists(address);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+   const [connectionError, setConnectionError] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+
   const [isNewUser, setIsNewUser] = useState(false);
-  console.log(profileExists, "profileExists")
+ 
   const navLinks = [
     { name: 'Explore', href: '/explore', icon: Compass },
     // { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
     // { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'How it Works', href: '#', icon: Zap, onClick: () => setHowItWorksOpen(true) },
   ];
+   const {
+    address: lowercaseAddress,
+    isConnected,
+    isMetaMaskInstalled,
+    isOnCorrectNetwork,
+    isLoading,
+    connectWallet,
+    disconnectWallet,
+    switchWalletAccount,
+  } = useWallet();
+  const address = lowercaseAddress ? getAddress(lowercaseAddress) : null;
+  console.log(address)
+    const { isLoading: IsCheckingProfile, data: profileExists } = useCheckIfProfileExists(address);
+
+    const handleConnect = async () => {
+    if (!isMetaMaskInstalled) {
+      return;
+    }
+
+    try {
+      setIsConnecting(true);
+      setConnectionError("");
+      await connectWallet();
+      setIsModalOpen(false);
+    } catch (err: any) {
+      console.error("Failed to connect wallet:", err);
+      setConnectionError(err.message || "Failed to connect to MetaMask");
+
+      if (err.message?.includes("rejected")) {
+        userRejected("Connection cancelled");
+      } else {
+        error("Failed to connect wallet", {
+          description: err.message || "Check your MetaMask and try again."
+        });
+      }
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   const NavItems = ({ className, onClick }: { className?: string; onClick?: () => void }) => (
     <div className={cn("flex items-center gap-1", className)}>
@@ -93,11 +135,11 @@ export default function Navbar() {
       setShowSetupModal(false);
       
       // 2. Only show "Welcome back" if they DID NOT just create an account right now
-      if (!isNewUser) {
-        toast.success("Welcome back!", {
-          description: `${address.slice(0, 6)}...${address.slice(-4)}`,
-        });
-      }
+      // if (!isNewUser) {
+      //   toast.success("Welcome back!", {
+      //     description: `${address.slice(0, 6)}...${address.slice(-4)}`,
+      //   });
+      // }
     }
   }, [address, isLoading, profileExists, isNewUser]);
 
@@ -202,7 +244,15 @@ export default function Navbar() {
               </>
             ) : (
               // <LoginButton />
-              <ConnectWallet />
+              <Button
+                  onClick={handleConnect}
+                  variant="gradient"
+                  className="w-full h-14 text-lg"
+                  disabled={isConnecting}
+                >
+                  <User className="w-5 h-5 mr-2" />
+                  {isConnecting ? "Connecting..." : "Connect MetaMask"}
+                </Button>
             )}
           </div>
         </div>

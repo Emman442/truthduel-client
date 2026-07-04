@@ -25,12 +25,12 @@ import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useAcceptMutualBet, useFetchConsensusBet, useFetchMutualBet, useJoinConsensusBet, useSettleConsensusBet, useSettleMutualBet, useUserProfile } from '@/lib/hooks/useTruthDuel';
 import { formatAddress } from '@/lib/genlayer/wallet';
-import { useWallet } from '@/hooks/useWallet';
 import { getAddress } from 'viem';
+import { useWallet } from '@/lib/genlayer/wallet';
 
 export default function BetDetailClient({ id }: { id: string }) {
   const isMutual = id.startsWith("mutual_");
-  const { address, isConnected, openModal: connect } = useWallet();
+  const { address, isConnected } = useWallet();
   const currentUserAddress = address ? getAddress(address) : "";
   const isDisabled = true
   const { isPending: isSettlingMutualBet, mutate: settleMutualBet } = useSettleMutualBet(id)

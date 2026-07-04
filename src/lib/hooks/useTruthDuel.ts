@@ -6,7 +6,7 @@ import TruthDuel from "@/lib/contracts/TruthBets"
 import { getContractAddress } from "../genlayer/client";
 import type { UserProfile, MutualBet, ConsensusBet, SettlementResult } from "../contracts/types";
 import { toast } from "sonner";
-import {useWallet} from "@/hooks/useWallet";
+import { useWallet } from '@/lib/genlayer/wallet';
 
 
 export function useVeriFreeContract(): TruthDuel | null {

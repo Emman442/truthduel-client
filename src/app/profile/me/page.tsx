@@ -10,14 +10,14 @@ import { MOCK_USER, MOCK_ACTIVITIES } from '@/lib/mock-data';
 import { Wallet, Trophy, Target, TrendingUp, ShieldCheck, Mail, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/lib/hooks/useTruthDuel';
-import { useWallet } from '@/hooks/useWallet';
+import { useWallet } from '@/lib/genlayer/wallet';
 import { HashLoader } from 'react-spinners';
 import { formatAddress } from '@/lib/genlayer/wallet';
 
 export default function ProfilePage() {
 
-  const { address, isConnected, openModal: connect } = useWallet();
-  const { isFetching: isUserProfileFetching, data: userProfile } = useUserProfile(address)
+  const { address, isConnected, } = useWallet();
+  const { isFetching: isUserProfileFetching, data: userProfile } = useUserProfile(address || "");
 
   if (isUserProfileFetching) {
     return (

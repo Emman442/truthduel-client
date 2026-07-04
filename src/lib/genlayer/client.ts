@@ -58,10 +58,10 @@ export function getContractAddress(): string {
 /**
  * Check if MetaMask is installed
  */
-// export function isMetaMaskInstalled(): boolean {
-//   if (typeof window === "undefined") return false;
-//   return !!window.ethereum?.isMetaMask;
-// }
+export function isMetaMaskInstalled(): boolean {
+  if (typeof window === "undefined") return false;
+  return !!window.ethereum?.isMetaMask;
+}
 
 /**
  * Get the Ethereum provider (MetaMask)
@@ -207,27 +207,27 @@ export async function isOnGenLayerNetwork(): Promise<boolean> {
  * Connect to MetaMask and ensure we're on GenLayer network
  * @returns The connected address
  */
-// export async function connectMetaMask(): Promise<string> {
-//   if (!isMetaMaskInstalled()) {
-//     throw new Error("MetaMask is not installed");
-//   }
+export async function connectMetaMask(): Promise<string> {
+  if (!isMetaMaskInstalled()) {
+    throw new Error("MetaMask is not installed");
+  }
 
-//   // Request accounts
-//   const accounts = await requestAccounts();
+  // Request accounts
+  const accounts = await requestAccounts();
 
-//   if (!accounts || accounts.length === 0) {
-//     throw new Error("No accounts found");
-//   }
+  if (!accounts || accounts.length === 0) {
+    throw new Error("No accounts found");
+  }
 
-//   // Check and switch to GenLayer network
-//   const onCorrectNetwork = await isOnGenLayerNetwork();
+  // Check and switch to GenLayer network
+  const onCorrectNetwork = await isOnGenLayerNetwork();
 
-//   if (!onCorrectNetwork) {
-//     await switchToGenLayerNetwork();
-//   }
+  if (!onCorrectNetwork) {
+    await switchToGenLayerNetwork();
+  }
 
-//   return accounts[0];
-// }
+  return accounts[0];
+}
 
 /**
  * Request user to switch MetaMask account
@@ -272,23 +272,23 @@ export async function switchAccount(): Promise<string> {
 /**
  * Create a viem wallet client from MetaMask provider
  */
-// export function createMetaMaskWalletClient(): WalletClient | null {
-//   const provider = getEthereumProvider();
+export function createMetaMaskWalletClient(): WalletClient | null {
+  const provider = getEthereumProvider();
 
-//   if (!provider) {
-//     return null;
-//   }
+  if (!provider) {
+    return null;
+  }
 
-//   try {
-//     return createWalletClient({
-//       chain: studionet as any,
-//       transport: custom(provider),
-//     });
-//   } catch (error) {
-//     console.error("Error creating wallet client:", error);
-//     return null;
-//   }
-// }
+  try {
+    return createWalletClient({
+      chain: studionet as any,
+      transport: custom(provider),
+    });
+  } catch (error) {
+    console.error("Error creating wallet client:", error);
+    return null;
+  }
+}
 
 /**
  * Create a GenLayer client with MetaMask account
@@ -297,10 +297,7 @@ export async function switchAccount(): Promise<string> {
  * When an address is provided, the SDK will use the window.ethereum provider
  * automatically for transaction signing via MetaMask.
  */
-export function createGenLayerClient(
-  address?: string,
-  provider?: any
-) {
+export function createGenLayerClient(address?: string) {
   const config: any = {
     chain: studionet,
   };
@@ -309,11 +306,15 @@ export function createGenLayerClient(
     config.account = address as `0x${string}`;
   }
 
-  if (provider) {
-    config.transport = custom(provider);
+  try {
+    return createClient(config);
+  } catch (error) {
+    console.error("Error creating GenLayer client:", error);
+    // Return client without account on error
+    return createClient({
+      chain: studionet,
+    });
   }
-
-  return createClient(config);
 }
 
 /**
