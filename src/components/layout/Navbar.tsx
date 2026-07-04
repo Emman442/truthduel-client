@@ -41,6 +41,7 @@ export default function Navbar() {
   const { address: LowerCaseAddress } = useWallet()
   const address = LowerCaseAddress ? getAddress(LowerCaseAddress) : "";
   const { isLoading, data: profileExists } = useCheckIfProfileExists(address);
+  const [isNewUser, setIsNewUser] = useState(false);
   console.log(profileExists, "profileExists")
   const navLinks = [
     { name: 'Explore', href: '/explore', icon: Compass },
@@ -76,27 +77,29 @@ export default function Navbar() {
     </div>
   );
 
-  // Profile check logic
-  // Profile check logic
+
   useEffect(() => {
     if (!address) {
       setShowSetupModal(false);
+      setIsNewUser(false); // Reset on disconnect
       return;
     }
 
-    // Halt execution if the hook is still working
     if (isLoading || profileExists === undefined) return;
 
-    // Explicitly check for exact boolean values
     if (profileExists === false) {
       setShowSetupModal(true);
     } else if (profileExists === true) {
       setShowSetupModal(false);
-      toast.success("Welcome back!", {
-        description: `${address.slice(0, 6)}...${address.slice(-4)}`,
-      });
+      
+      // 2. Only show "Welcome back" if they DID NOT just create an account right now
+      if (!isNewUser) {
+        toast.success("Welcome back!", {
+          description: `${address.slice(0, 6)}...${address.slice(-4)}`,
+        });
+      }
     }
-  }, [address, isLoading, profileExists]);
+  }, [address, isLoading, profileExists, isNewUser]);
 
 
   return (
@@ -130,6 +133,7 @@ export default function Navbar() {
           onClose={() => setShowSetupModal(false)}
           address={address || ""}
           onProfileCreated={() => {
+            console.log("Profile created callback triggered");
             toast.success("Profile created!", {
               description: "Welcome to TruthDuel!",
             });
